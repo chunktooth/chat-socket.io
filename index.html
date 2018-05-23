@@ -17,23 +17,43 @@
   <body>
     <ul id="messages"></ul>
     <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
+      <input id="name" placeholder="Nickname" />
+      <input id="m" autocomplete="off" />
+      <button>Send</button>
     </form>
     <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
       $(function () {
         var socket = io();
-        $('form').submit(function(){
-          socket.emit('chat message', $('#m').val());
+        
+        $('form').submit( function() {
+          var name = $('#name').val();
+          var text = $('#m').val();
+
+          socket.emit('chat message', { name, text });
           $('#m').val('');
           return false;
         });
-        socket.on('chat message', function(msg){
+
+        socket.on('chat message', function(msg) {
           $('#messages').append($('<li>').text(msg));
           window.scrollTo(0, document.body.scrollHeight);
         });
+
+        socket.on('message', function(message) {
+          $('#messages').append(`<p>${message}</p>`)
+        })
+
+        socket.on('userConnected', function(msg) {
+          $('#messages').append($('<li>').text(msg));
+        });
+        
+        socket.on('userDisconnected', function(msg) {
+          $('#messages').append($('<li>').text(msg));
+        });
       });
+
     </script>
   </body>
 </html>
